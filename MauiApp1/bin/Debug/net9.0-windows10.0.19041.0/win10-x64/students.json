@@ -10,8 +10,7 @@
       "year": 3                     
     },
     "current_term": {
-      "term": 2,                   
-      "year": 2024,
+      "term": "2/2568",
       "enrolled_courses": [        
         {
           "course_id": "CS101",
@@ -27,8 +26,7 @@
     },
     "previous_terms": [            
       {
-        "term": 1,
-        "year": 2024,
+        "term": "1/2568",
         "enrolled_courses": [
           {
             "course_id": "PHYS101",
@@ -38,8 +36,37 @@
         ]
       },
       {
-        "term": 3,
-        "year": 2023,
+        "term": "2/2567",
+        "enrolled_courses": [
+          {
+            "course_id": "CHEM101",
+            "course_name": "Chemistry I",
+            "credits": 3
+          }
+        ]
+      },
+      {
+        "term": "1/2567",
+        "enrolled_courses": [
+          {
+            "course_id": "CHEM101",
+            "course_name": "Chemistry I",
+            "credits": 3
+          }
+        ]
+      },
+      {
+        "term": "2/2566",
+        "enrolled_courses": [
+          {
+            "course_id": "CHEM101",
+            "course_name": "Chemistry I",
+            "credits": 3
+          }
+        ]
+      },
+      {
+        "term": "1/2566",
         "enrolled_courses": [
           {
             "course_id": "CHEM101",
@@ -61,8 +88,7 @@
       "year": 2                     
     },
     "current_term": {
-      "term": 2,
-      "year": 2024,
+      "term": "2/2558",
       "enrolled_courses": [
         {
           "course_id": "MATH201",
@@ -73,8 +99,7 @@
     },
     "previous_terms": [
       {
-        "term": 1,
-        "year": 2024,
+        "term": "1/2557",
         "enrolled_courses": [
           {
             "course_id": "STAT101",

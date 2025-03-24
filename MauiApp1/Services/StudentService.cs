@@ -1,75 +1,45 @@
-using MauiApp1.Model;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MauiApp1.Model;
+using Newtonsoft.Json;
 
-namespace MauiApp1.Services
+public class StudentService
 {
-    public class StudentService
+    private List<Course> _allCourses;
+
+    public async Task LoadCoursesAsync()
     {
-        private List<Student> _students;
+        using var stream = await FileSystem.OpenAppPackageFileAsync("courses.json");
+        using var reader = new StreamReader(stream);
+        var json = await reader.ReadToEndAsync();
+        _allCourses = JsonConvert.DeserializeObject<List<Course>>(json);
+    }
 
-        // โหลดข้อมูลนักเรียนจากไฟล์ JSON
-        public async Task<List<Student>> LoadStudentsAsync()
+    public async Task<Student> GetStudentByIdAsync(string id)
+    {
+        using var stream = await FileSystem.OpenAppPackageFileAsync("students.json");
+        using var reader = new StreamReader(stream);
+        var json = await reader.ReadToEndAsync();
+        var students = JsonConvert.DeserializeObject<List<Student>>(json);
+        var student = students.FirstOrDefault(s => s.Id == id);
+
+        if (student != null && _allCourses != null)
         {
-            if (_students != null)
-            {
-                return _students;  // ถ้ามีข้อมูลอยู่แล้ว ไม่ต้องโหลดซ้ำ
-            }
+            // ผูกข้อมูลหลักสูตร
+            student.CurrentTerm.EnrolledCourses = _allCourses
+                .Where(c => student.CurrentTerm.EnrolledCourseIds.Contains(c.CourseId))
+                .ToList();
 
-            try
+            foreach (var term in student.PreviousTerms)
             {
-                // อ่านไฟล์ students.json จากโฟลเดอร์ Raw
-                using var stream = await FileSystem.OpenAppPackageFileAsync("students.json");
-                using var reader = new StreamReader(stream);
-                var json = await reader.ReadToEndAsync();
-                _students = JsonConvert.DeserializeObject<List<Student>>(json) ?? new List<Student>();
-                return _students;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error loading JSON: {ex.Message}");
-                return new List<Student>();
+                term.EnrolledCourses = _allCourses
+                    .Where(c => term.EnrolledCourseIds.Contains(c.CourseId))
+                    .ToList();
             }
         }
 
-        // ค้นหานักเรียนด้วย Id
-        public async Task<Student> GetStudentByIdAsync(string id)
-        {
-            var students = await LoadStudentsAsync();
-            return students.FirstOrDefault(s => s.Id == id);
-        }
-
-        // เพิ่มนักเรียนใหม่
-        public async Task<bool> AddStudentAsync(Student newStudent)
-        {
-            var students = await LoadStudentsAsync();
-
-            // ตรวจสอบว่าอีเมลซ้ำหรือไม่
-            if (students.Any(s => s.Email == newStudent.Email))
-            {
-                return false;  // อีเมลซ้ำ
-            }
-
-            // เพิ่มนักเรียนใหม่
-            students.Add(newStudent);
-
-            // บันทึกข้อมูลกลับลงไฟล์ JSON
-            try
-            {
-                var json = JsonConvert.SerializeObject(students, Formatting.Indented);
-                var filePath = Path.Combine(FileSystem.AppDataDirectory, "students.json");
-                await File.WriteAllTextAsync(filePath, json);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error saving JSON: {ex.Message}");
-                return false;
-            }
-        }
+        return student;
     }
 }

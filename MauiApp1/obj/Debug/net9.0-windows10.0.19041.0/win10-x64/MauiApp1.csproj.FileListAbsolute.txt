@@ -739,3 +739,5 @@ D:\1204433_1\MauiApp1\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.
 D:\1204433_1\MauiApp1\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 D:\1204433_1\MauiApp1\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
 D:\1204433_1\MauiApp1\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\students.json
+D:\1204433_1\MauiApp1\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\MauiApp1.sourcelink.json
+D:\1204433_1\MauiApp1\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\courses.json

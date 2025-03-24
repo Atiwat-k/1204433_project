@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.Model;
 using MauiApp1.Services;
+using System.Linq;
 
 namespace MauiApp1.ViewModel
 {
@@ -19,90 +20,130 @@ namespace MauiApp1.ViewModel
         private Term selectedTerm;
 
         [ObservableProperty]
-        private ObservableCollection<EnrolledCourse> displayedCourses = new();
+        private ObservableCollection<CourseGroup> groupedCourses = new();
 
         [ObservableProperty]
         private string userId;
 
-        // เพิ่ม property สำหรับข้อมูลโปรไฟล์นักศึกษา
         [ObservableProperty]
         private Profile studentProfile;
 
-        // เพิ่ม property สำหรับเก็บเทอมปัจจุบันและเทอมก่อนหน้า
         [ObservableProperty]
-        private Term currentTerm;
-
-        [ObservableProperty]
-        private Term previousTerm1;
-
-        [ObservableProperty]
-        private Term previousTerm2;
+        private bool isLoading;
 
         public ShowObjectsViewModel(StudentService studentService)
         {
             _studentService = studentService;
         }
 
+        [RelayCommand]
         public async Task LoadDataAsync()
         {
-            var student = await _studentService.GetStudentByIdAsync(UserId);
-            if (student != null)
+            try
             {
-                // เก็บข้อมูลโปรไฟล์นักศึกษา
-                StudentProfile = student.Profile;
+                IsLoading = true;
+                
+                // โหลดข้อมูลหลักสูตรก่อน
+                await _studentService.LoadCoursesAsync();
+                
+                var student = await _studentService.GetStudentByIdAsync(UserId);
+                if (student != null)
+                {
+                    StudentProfile = student.Profile;
 
-                // เตรียมข้อมูลเทอม
-                CurrentTerm = student.CurrentTerm;
-                if (student.PreviousTerms.Count > 0)
-                    PreviousTerm1 = student.PreviousTerms[0];
-                if (student.PreviousTerms.Count > 1)
-                    PreviousTerm2 = student.PreviousTerms[1];
+                    // รวบรวมและแสดงข้อมูลเทอมทั้งหมด
+                    UpdateAvailableTerms(student);
 
-                // เซ็ตค่าเริ่มต้นเป็นเทอมปัจจุบัน
-                SelectedTerm = CurrentTerm;
-                UpdateDisplayedCourses();
+                    // จัดกลุ่มข้อมูลหลักสูตร
+                    GroupCourses(student);
 
-                Debug.WriteLine($"Student loaded: {student.Profile.Name}");
+                    // เลือกเทอมปัจจุบันเป็นค่าเริ่มต้น
+                    if (AvailableTerms.Count > 0)
+                    {
+                        SelectedTerm = AvailableTerms.First();
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Debug.WriteLine("Student not found.");
+                Debug.WriteLine($"Error loading data: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
-        // เมธอดอัปเดตรายวิชาตามเทอมที่เลือก
+        private void UpdateAvailableTerms(Student student)
+        {
+            AvailableTerms.Clear();
+            
+            if (student.CurrentTerm != null)
+            {
+                AvailableTerms.Add(student.CurrentTerm);
+            }
+            
+            if (student.PreviousTerms != null)
+            {
+                foreach (var term in student.PreviousTerms)
+                {
+                    AvailableTerms.Add(term);
+                }
+            }
+        }
+
+        private void GroupCourses(Student student)
+        {
+            var allTerms = new List<Term>();
+            
+            if (student.CurrentTerm != null)
+            {
+                allTerms.Add(student.CurrentTerm);
+            }
+            
+            if (student.PreviousTerms != null)
+            {
+                allTerms.AddRange(student.PreviousTerms);
+            }
+
+            // สร้างกลุ่มวิชาจากหลักสูตรทั้งหมดที่นักศึกษาเคยลงทะเบียน
+            var courseGroups = allTerms
+                .SelectMany(t => t.EnrolledCourses)
+                .GroupBy(c => c.CourseId)
+                .Select(g => new CourseGroup
+                {
+                    CourseId = g.Key,
+                    CourseName = g.First().CourseName,
+                    Credits = (int)g.First().Credits,
+                    TermsOffered = allTerms
+                        .Where(t => t.EnrolledCourses.Any(ec => ec.CourseId == g.Key))
+                        .ToList()
+                })
+                .OrderBy(cg => cg.CourseId)
+                .ToList();
+
+            GroupedCourses = new ObservableCollection<CourseGroup>(courseGroups);
+        }
+
         partial void OnSelectedTermChanged(Term value)
         {
-            UpdateDisplayedCourses();
-        }
-
-        private void UpdateDisplayedCourses()
-        {
-            if (SelectedTerm != null)
+            if (value != null)
             {
-                DisplayedCourses = new ObservableCollection<EnrolledCourse>(SelectedTerm.EnrolledCourses);
+                // สามารถเพิ่มการกรองข้อมูลตามเทอมที่เลือกได้ที่นี่
+                // หรือใช้ SelectedTerm ใน View โดยตรง
             }
         }
 
-        // Command สำหรับเลือกเทอมปัจจุบัน
         [RelayCommand]
-        private void SelectCurrentTerm()
+        private void SelectTerm(Term term)
         {
-            SelectedTerm = CurrentTerm;
+            SelectedTerm = term;
         }
 
-        // Command สำหรับเลือกเทอมก่อนหน้า 1
         [RelayCommand]
-        private void SelectPreviousTerm1()
+        private async Task RefreshData()
         {
-            SelectedTerm = PreviousTerm1;
-        }
-
-        // Command สำหรับเลือกเทอมก่อนหน้า 2
-        [RelayCommand]
-        private void SelectPreviousTerm2()
-        {
-            SelectedTerm = PreviousTerm2;
+            await LoadDataAsync();
         }
     }
 }

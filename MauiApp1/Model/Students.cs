@@ -15,38 +15,51 @@ namespace MauiApp1.Model
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
-    public partial class Student
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
+public partial class Student
+{
+    [JsonProperty("id")]
+    public string Id { get; set; }
 
-        [JsonProperty("email")]
-        public string Email { get; set; }
+    [JsonProperty("email")]
+    public string Email { get; set; }
 
-        [JsonProperty("password")]
-        public string Password { get; set; }
+    [JsonProperty("password")]
+    public string Password { get; set; }
 
-        [JsonProperty("profile")]
-        public Profile Profile { get; set; }
+    [JsonProperty("profile")]
+    public Profile Profile { get; set; }
 
-        [JsonProperty("current_term")]
-        public Term CurrentTerm { get; set; }
+    [JsonProperty("current_term")]
+    public Term CurrentTerm { get; set; }
 
-        [JsonProperty("previous_terms")]
-        public List<Term> PreviousTerms { get; set; }
-    }
+    [JsonProperty("previous_terms")]
+    public List<Term> PreviousTerms { get; set; }
+}
 
-    public partial class Term
-    {
-        [JsonProperty("term")]
-        public long TermTerm { get; set; }
+public partial class Term
+{
+    [JsonProperty("term")]
+    public string TermTerm { get; set; }
 
-        [JsonProperty("year")]
-        public long Year { get; set; }
+    [JsonProperty("enrolled_course_ids")]
+    public List<string> EnrolledCourseIds { get; set; }
 
-        [JsonProperty("enrolled_courses")]
-        public List<EnrolledCourse> EnrolledCourses { get; set; }
-    }
+    // เพิ่ม property นี้สำหรับเก็บข้อมูลหลักสูตรเต็มรูปแบบ (ไม่ใช้ใน JSON)
+    [JsonIgnore]
+    public List<Course> EnrolledCourses { get; set; }
+}
+
+public class Course
+{
+    [JsonProperty("course_id")]
+    public string CourseId { get; set; }
+
+    [JsonProperty("course_name")]
+    public string CourseName { get; set; }
+
+    [JsonProperty("credits")]
+    public int Credits { get; set; }
+}
 
     public partial class EnrolledCourse
     {
