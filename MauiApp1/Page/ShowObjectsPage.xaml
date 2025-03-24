@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Page.ShowObjectsPage"
+             xmlns:viewmodel="clr-namespace:MauiApp1.ViewModel"
+             xmlns:model="clr-namespace:MauiApp1.Model"
+             x:DataType="viewmodel:ShowObjectsViewModel"
+             Title="ข้อมูลนักศึกษา"
+             BackgroundColor="#F5F5F5">
+    <ScrollView>
+        <VerticalStackLayout Padding="20">
+
+            <!-- ข้อมูลโปรไฟล์นักศึกษา -->
+
+            <!-- ชื่อของนักศึกษา -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="ชื่อ "
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+                <Label Text="{Binding StudentProfile.Name}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+            </HorizontalStackLayout>
+
+            <!-- คณะ -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="คณะ "
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+                <Label Text="{Binding StudentProfile.Faculty}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+            </HorizontalStackLayout>
+
+            <!-- สาขา -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="สาขา "
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+                <Label Text="{Binding StudentProfile.Major}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+            </HorizontalStackLayout>
+
+            <!-- ปีการศึกษา -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="ปี "
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+                <Label Text="{Binding StudentProfile.Year}"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="#2C3E50"
+                       Margin="0,10"/>
+            </HorizontalStackLayout>
+
+            <!-- ปุ่มเลือกเทอมในแนวนอน -->
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Start" Margin="0,10">
+                <!-- ปุ่มเลือกเทอมปัจจุบัน -->
+                <Button Text="เทอมปัจจุบัน"
+                        Command="{Binding SelectCurrentTermCommand}"
+                        IsVisible="{Binding CurrentTerm, Converter={StaticResource NullToBoolConverter}}"/>
+
+                <!-- ปุ่มเลือกเทอมก่อนหน้า 1 -->
+                <Button Text="เทอมก่อนหน้า 1"
+                        Command="{Binding SelectPreviousTerm1Command}"
+                        IsVisible="{Binding PreviousTerm1, Converter={StaticResource NullToBoolConverter}}"/>
+
+                <!-- ปุ่มเลือกเทอมก่อนหน้า 2 -->
+                <Button Text="เทอมก่อนหน้า 2"
+                        Command="{Binding SelectPreviousTerm2Command}"
+                        IsVisible="{Binding PreviousTerm2, Converter={StaticResource NullToBoolConverter}}"/>
+            </HorizontalStackLayout>
+
+            <!-- แสดงรายวิชาของเทอมที่เลือก -->
+            <Label Text="รายวิชาที่ลงทะเบียน"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#2C3E50"
+                   Margin="0,10,0,5"/>
+
+            <CollectionView ItemsSource="{Binding DisplayedCourses}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:EnrolledCourse">
+                        <Frame Padding="15"
+                               Margin="10"
+                               BackgroundColor="White"
+                               CornerRadius="10"
+                               HasShadow="True">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding CourseName}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#34495E"/>
+                                <Label Text="หน่วยกิต: {Binding Credits}"
+                                       FontSize="14"
+                                       TextColor="Gray"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
